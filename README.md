@@ -6,11 +6,11 @@
 
 ## Module starten:
 
-    sudo insmod main.ko
+    sudo insmod main.ko outputs=5,12 level=1,0
 
 ## Module stoppen:
 
-    sudo insmod main.ko
+    sudo rmmod main.ko
 
 ## Lijst met modules die gestart zijn:
 
@@ -19,3 +19,7 @@
 ## Print output tonen:
     
     dmesg
+
+## info van module tonen
+
+    modinfo main.ko
