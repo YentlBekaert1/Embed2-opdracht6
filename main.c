@@ -8,8 +8,7 @@
  */
 static struct gpio leds[] = {
 		{  4, GPIOF_OUT_INIT_HIGH, "LED 1" },
-		{ 25, GPIOF_OUT_INIT_HIGH, "LED 2" },
-		{ 24, GPIOF_OUT_INIT_HIGH, "LED 3" },
+		{ 25, GPIOF_OUT_INIT_LOW, "LED 2" },
 };
 
 //bepalen van de argumenten
@@ -37,28 +36,33 @@ static int __init gpiomod_init(void)
     //overloop alle argumenten voor outputs
     for (i = 0; i < (sizeof outputs / sizeof (int)); i++)
 	{
-		printk(KERN_INFO "outputs[%d] = %d\n", i, outputs[i]);
+       leds[i].gpio =  outputs[i];
+	   printk(KERN_INFO "outputs[%d] = %d\n", i, outputs[i]);
+       printk(KERN_INFO "gpio_struct.gpio[%d] = %ld\n", i, leds[i].flags); 
+	}
+	printk(KERN_INFO "got %d arguments for outputs.\n", arr_argc_outputs);
+
+    ret = gpio_request_array(leds, ARRAY_SIZE(leds));
+    if (ret) {
+		printk(KERN_ERR "Unable to request GPIOs: %d\n", ret);
 	}
 
-	printk(KERN_INFO "got %d arguments for outputs.\n", arr_argc_outputs);
     i = 0;
 
     //overloop alle argumenten voor levels
     for (i = 0; i < (sizeof level / sizeof (int)); i++)
 	{
 		printk(KERN_INFO "level[%d] = %d\n", i, level[i]);
+        gpio_set_value(leds[i].gpio, level[i]);
 	}
 
 	printk(KERN_INFO "got %d arguments for level.\n", arr_argc_level);
 
 
 	// register LED GPIOs, turn LEDs on
-	ret = gpio_request_array(leds, ARRAY_SIZE(leds));
-
-	if (ret) {
-		printk(KERN_ERR "Unable to request GPIOs: %d\n", ret);
-	}
-
+	
+    
+	
 	return ret;
 }
 
