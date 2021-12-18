@@ -1,0 +1,1 @@
+cmd_/home/pi/embed2/Embed2-opdracht6/main.ko := ld -r  -EL  --build-id=sha1  -T scripts/module.lds -o /home/pi/embed2/Embed2-opdracht6/main.ko /home/pi/embed2/Embed2-opdracht6/main.o /home/pi/embed2/Embed2-opdracht6/main.mod.o;  true
