@@ -6,7 +6,7 @@
 
 ## Module starten:
 
-    sudo insmod main.ko outputs=5,12 level=1,0
+    sudo insmod main.ko outputs=5,12 level=1,0 togglespeed=0,5
 
 ## Module stoppen:
 

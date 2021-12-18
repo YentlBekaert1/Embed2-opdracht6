@@ -930,6 +930,9 @@ deps_/home/pi/embed2/Embed2-opdracht6/main.o := \
   include/linux/pinctrl/machine.h \
   include/linux/gpio/consumer.h \
     $(wildcard include/config/gpio/sysfs.h) \
+  include/linux/kthread.h \
+  include/linux/delay.h \
+  arch/arm/include/asm/delay.h \
 
 /home/pi/embed2/Embed2-opdracht6/main.o: $(deps_/home/pi/embed2/Embed2-opdracht6/main.o)
 

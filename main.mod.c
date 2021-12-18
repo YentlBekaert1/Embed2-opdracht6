@@ -29,9 +29,15 @@ __used __section("__versions") = {
 	{ 0x9e9fbfdf, "param_array_ops" },
 	{ 0x7b66b44c, "param_ops_int" },
 	{ 0x9dfdf722, "gpio_free_array" },
-	{ 0xba4c293, "gpiod_set_raw_value" },
-	{ 0xe30324cf, "gpio_to_desc" },
+	{ 0x223fc350, "kthread_stop" },
+	{ 0x977035dc, "wake_up_process" },
+	{ 0x31556c9c, "kthread_create_on_node" },
 	{ 0x8574ca6c, "gpio_request_array" },
+	{ 0xba4c293, "gpiod_set_raw_value" },
+	{ 0x8f411754, "gpiod_get_raw_value" },
+	{ 0xe30324cf, "gpio_to_desc" },
+	{ 0xb3f7646e, "kthread_should_stop" },
+	{ 0x8e865d3c, "arm_delay_ops" },
 	{ 0xc5850110, "printk" },
 	{ 0xb1ad28e0, "__gnu_mcount_nc" },
 };
@@ -39,4 +45,4 @@ __used __section("__versions") = {
 MODULE_INFO(depends, "");
 
 
-MODULE_INFO(srcversion, "17FE9D35FC5A565A066CCAB");
+MODULE_INFO(srcversion, "DF8DA3FE47D8AFFF207AC4B");
