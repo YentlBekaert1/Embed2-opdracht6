@@ -1,7 +1,7 @@
 # Embed2-opdracht6
 
-a) Een kernelmodule om enkele outputs aan te sturen aan de hand van module parameters.
-b) Extra parameter om de togglesnelheid van een IO aan te geven - waarde 0 => niet togglen.
+a)  Een kernelmodule om enkele outputs aan te sturen aan de hand van module parameters.
+b)  Extra parameter om de togglesnelheid van een IO aan te geven - waarde 0 => niet togglen.
 
 ## Compileren:
 
