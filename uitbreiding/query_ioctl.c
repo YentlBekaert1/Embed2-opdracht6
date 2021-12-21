@@ -16,7 +16,10 @@
 static dev_t dev;
 static struct cdev c_dev;
 static struct class *cl;
-static int status = 1, dignity = 3, ego = 5;
+
+//instellen parameters
+static int outputs[2] = {5,12}, level[2] = {1,0}, togglespeed[2] = {0,5};
+int i = 0;
  
 static int my_open(struct inode *i, struct file *f)
 {
@@ -32,32 +35,44 @@ static int my_ioctl(struct inode *i, struct file *f, unsigned int cmd, unsigned 
 static long my_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 #endif
 {
+
     query_arg_t q;
- 
+    
     switch (cmd)
     {
         case QUERY_GET_VARIABLES:
-            q.status = status;
-            q.dignity = dignity;
-            q.ego = ego;
+            
+            for( i = 0; i<2; i ++){
+                q.outputs[i] = outputs[i] ;
+                q.level[i]  = level[i] ;
+                q.togglespeed[i]  = togglespeed[i] ;
+            }
+           
             if (copy_to_user((query_arg_t *)arg, &q, sizeof(query_arg_t)))
             {
                 return -EACCES;
             }
             break;
         case QUERY_CLR_VARIABLES:
-            status = 0;
-            dignity = 0;
-            ego = 0;
+             i = 0;
+            for( i = 0; i<2; i ++){
+                q.outputs[i] = 0 ;
+                q.level[i]  = 0;
+                q.togglespeed[i]  =0;
+            }
             break;
         case QUERY_SET_VARIABLES:
             if (copy_from_user(&q, (query_arg_t *)arg, sizeof(query_arg_t)))
             {
                 return -EACCES;
             }
-            status = q.status;
-            dignity = q.dignity;
-            ego = q.ego;
+            i = 0;
+            for( i = 0; i<2; i ++){
+                outputs[i] = q.outputs[i];
+                level[i] = q.level[i];
+                togglespeed[i] = q.togglespeed[i];
+            }
+            
             break;
         default:
             return -EINVAL;

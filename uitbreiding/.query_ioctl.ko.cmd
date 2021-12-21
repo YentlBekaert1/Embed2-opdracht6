@@ -1,0 +1,1 @@
+cmd_/home/pi/embed2/Embed2-opdracht6/uitbreiding/query_ioctl.ko := ld -r  -EL  --build-id=sha1  -T scripts/module.lds -o /home/pi/embed2/Embed2-opdracht6/uitbreiding/query_ioctl.ko /home/pi/embed2/Embed2-opdracht6/uitbreiding/query_ioctl.o /home/pi/embed2/Embed2-opdracht6/uitbreiding/query_ioctl.mod.o;  true
