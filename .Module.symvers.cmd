@@ -1,1 +1,0 @@
-cmd_/home/pi/embed2/Embed2-opdracht6/Module.symvers := sed 's/ko$$/o/' /home/pi/embed2/Embed2-opdracht6/modules.order | scripts/mod/modpost -m -a   -o /home/pi/embed2/Embed2-opdracht6/Module.symvers -e -i Module.symvers   -T -
