@@ -8,6 +8,10 @@
 #include <asm/uaccess.h>
 #include <linux/uaccess.h> 
 
+#include <linux/gpio.h>
+#include <linux/kthread.h>
+#include <linux/delay.h>
+
 #include "query_ioctl.h"
  
 #define FIRST_MINOR 0
@@ -20,7 +24,42 @@ static struct class *cl;
 //instellen parameters
 static int outputs[2] = {5,12}, level[2] = {1,0}, togglespeed[2] = {0,5};
 int i = 0;
- 
+
+// ----------------------------- code uit deel A -------------------------------------------
+/* Initial blink delay */
+static int blink_delay1 = 100;
+static int blink_delay2 = 100;
+
+/* Task handle to identify thread */
+static struct task_struct *ts1 = NULL;
+static struct task_struct *ts2 = NULL;
+
+static struct gpio leds[] = {
+		{  4, GPIOF_OUT_INIT_HIGH, "LED 1" },
+		{ 25, GPIOF_OUT_INIT_LOW, "LED 2" },
+};
+
+static int output1_thread(void *data){
+    printk(KERN_INFO "%s\n=============\n", __func__);
+    while(!kthread_should_stop()){
+        gpio_set_value(leds[0].gpio, !gpio_get_value(leds[0].gpio));
+        mdelay(blink_delay1);
+        printk(KERN_INFO "%s ============= %d \n",__func__,!gpio_get_value(leds[0].gpio));
+    }
+    return 0;
+}
+
+static int output2_thread(void *data){
+    printk(KERN_INFO "%s\n=============\n", __func__);
+    while(!kthread_should_stop()){
+        gpio_set_value(leds[1].gpio, !gpio_get_value(leds[1].gpio));
+        mdelay(blink_delay2);
+        printk(KERN_INFO "%s ============= %d \n",__func__,!gpio_get_value(leds[1].gpio));
+    }
+    return 0;
+}
+
+//---------------------------------- ioctl vb --------------------------------------- 
 static int my_open(struct inode *i, struct file *f)
 {
     return 0;
@@ -35,7 +74,7 @@ static int my_ioctl(struct inode *i, struct file *f, unsigned int cmd, unsigned 
 static long my_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 #endif
 {
-
+    int gp;
     query_arg_t q;
     
     switch (cmd)
@@ -72,7 +111,57 @@ static long my_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
                 level[i] = q.level[i];
                 togglespeed[i] = q.togglespeed[i];
             }
+            if(ts1) {
+                kthread_stop(ts1);
+            }
+            if(ts2) {
+                kthread_stop(ts2);
+            }
+            gpio_free_array(leds, ARRAY_SIZE(leds));
+            //hier komt de code voor als de waarden binnen komen
+            i = 0;
+            for( i = 0; i<2; i ++){
+                leds[i].gpio =  outputs[i];
+                printk(KERN_INFO "output[%d] = %d\n", i, leds[i].gpio);
+            }
+            gp = gpio_request_array(leds, ARRAY_SIZE(leds));
+            if(gp) {
+                printk(KERN_ERR "Unable to request GPIOs: %d\n", gp);
+            }  
+            i = 0;
+            for( i = 0; i<2; i ++){
+                printk(KERN_INFO "level[%d] = %d\n", i, level[i]);
+                gpio_set_value(leds[i].gpio, level[i]);
+            }   
+            for( i = 0; i<2; i ++){
+                togglespeed[i] = q.togglespeed[i];
+                if(togglespeed[i] != 0){
+                    if(i == 0){
+                        blink_delay1 = togglespeed[i]*100;
+                        ts1 = kthread_create(output1_thread, NULL, "output1_thread");
+                        if(ts1) {
+                            wake_up_process(ts1);
+                            printk(KERN_INFO "created output_thread1 met delay %d\n", blink_delay1);
+                        }
+                        else {
+                            printk(KERN_ERR "Unable to create output_thread1\n");
+                        }
+                    }
+                    if(i == 1){
+                        blink_delay2 = togglespeed[i]*100;
+                        ts2 = kthread_create(output2_thread, NULL, "output_thread");
+                        if(ts2) {
+                            wake_up_process(ts2);
+                            printk(KERN_INFO "created output_thread2\n");
+                        }
+                        else {
+                            printk(KERN_ERR "Unable to create output_thread2 met delay %d\n",blink_delay2);
+                        }
+                    }
+                }
+            }
             
+            printk(KERN_INFO "created values\n");
             break;
         default:
             return -EINVAL;
@@ -97,7 +186,8 @@ static int __init query_ioctl_init(void)
 {
     int ret;
     struct device *dev_ret;
- 
+
+    printk(KERN_INFO "%s\n=============\n", __func__);
  
     if ((ret = alloc_chrdev_region(&dev, FIRST_MINOR, MINOR_CNT, "query_ioctl")) < 0)
     {
@@ -130,6 +220,21 @@ static int __init query_ioctl_init(void)
  
 static void __exit query_ioctl_exit(void)
 {
+    printk(KERN_INFO "%s\n=============\n", __func__);
+    int i;
+    // turn all LEDs off
+	for(i = 0; i < ARRAY_SIZE(leds); i++) {
+		gpio_set_value(leds[i].gpio, 0); 
+	}
+	
+	// unregister all GPIOs
+	gpio_free_array(leds, ARRAY_SIZE(leds));
+        if(ts1) {
+            kthread_stop(ts1);
+        }
+        if(ts2) {
+            kthread_stop(ts2);
+        }
     device_destroy(cl, dev);
     class_destroy(cl);
     cdev_del(&c_dev);

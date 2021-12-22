@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/ioctl.h>
- 
+
 #include "query_ioctl.h"
  
 void get_vars(int fd)
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
  
     close (fd);
 
-    
+
  
     return 0;
 }
